@@ -24,20 +24,21 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_eip" "lb" {
   count= length(lookup(lookup(var.subnets, "public",null ), "cidr_block" ,0))
+  #count = length(var.subnets["public"].cidr_block)
   vpc = true
   tags = merge(var.tags,{Name = "${var.env}-eip"} )
 
 }
 
-resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.example.id
-  subnet_id     = aws_subnet.example.id
-
-  tags = {
-    Name = "gw NAT"
-  }
-
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.example]
-}
+#resource "aws_nat_gateway" "example" {
+#  allocation_id = aws_eip.example.id
+#  subnet_id     = aws_subnet.example.id
+#
+#  tags = {
+#    Name = "gw NAT"
+#  }
+#
+#  # To ensure proper ordering, it is recommended to add an explicit dependency
+#  # on the Internet Gateway for the VPC.
+#  depends_on = [aws_internet_gateway.example]
+#}
