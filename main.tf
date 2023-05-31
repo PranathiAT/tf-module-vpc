@@ -34,7 +34,6 @@ resource "aws_nat_gateway" "ngw" {
   count= length(lookup(lookup(var.subnets, "public",null ), "cidr_block" ,0))
   allocation_id = aws_eip.eip[count.index].id
   subnet_id     = module.subnets["public"].subnet_ids[count.index]
-
   tags = merge(var.tags,{Name = "${var.env}-ngw-${count.index+1}"} )
 
 }
@@ -46,9 +45,9 @@ resource "aws_route" "igw" {
   destination_cidr_block = "0.0.0.0/0"
 }
 
-#resource "aws_route" "ngw" {
-#  count = length(local.all_private_subnet_ids)
-#  route_table_id = local.all_private_subnet_ids[count.index]
-#  nat_gateway_id = aws_nat_gateway.ngw.id
-#  destination_cidr_block = "0.0.0.0/0"
-#}
+resource "aws_route" "ngw" {
+  count = length(local.all_private_subnet_ids)
+  route_table_id = local.all_private_subnet_ids[count.index]
+  nat_gateway_id = element(aws_nat_gateway.ngw.*.id, count[index])
+  destination_cidr_block = "0.0.0.0/0"
+}
